@@ -60,16 +60,15 @@ foreach my $screenshots (sort @folders_screenshot)				# going through the direct
     my $info_DCIM = ImageInfo($insp_path);
     print "DateTimeOriginal = $$info_DCIM{DateTimeOriginal}\n";
 
-
-    $exifTool->SetNewValuesFromFile($insp_path, 'DateTimeOriginal');
+    # $exifTool->SetNewValuesFromFile($insp_path, 'DateTimeOriginal');
 
     # write EXIF to screenshot jpeg
 
-    $errcode = $exifTool->WriteInfo($filepath);
+    # $errcode = $exifTool->WriteInfo($screenshots);
 
-    my $info = ImageInfo($filepath);
+    my $info_screenshot = ImageInfo($screenshots);
 
-    print "screenshot = $filepath\t";
+    print "screenshot = $screenshots\t";
     print "$$info{DateTimeOriginal}\t$insp_file\n\n";
 
     exit;
