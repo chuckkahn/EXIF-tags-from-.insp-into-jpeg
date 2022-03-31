@@ -1,18 +1,25 @@
 #!/usr/bin/perl
 
+use strict;
+
 use File::Find::Rule;	# find all the subdirectories of a given directory
 
 use Image::ExifTool qw(:Public);
 
-$path_DCIM = "/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/2022-03-18 - Toronto Comicon Day 1/DCIM/Camera01/";
+my $path_DCIM = "/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/2022-03-18 - Toronto Comicon Day 1/DCIM/Camera01/";
 
-$path_screenshot="/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/2022-03-18 - Toronto Comicon Day 1/_Studio/Camera01/";
+my $path_screenshot="/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/2022-03-18 - Toronto Comicon Day 1/_Studio/Camera01/";
 
 # go through DCIM folders to gather locations of .insp files
 
 my @folders_DCIM = File::Find::Rule->file
                               ->name( '*.insp' )
 							  ->in( $path_DCIM );		# looking for .insp files
+
+my $filepath_DCIM;
+my $path_DCIM; 
+my $file_DCIM;
+my %insp_path;
 
 foreach my $filepath_DCIM (@folders_DCIM)				# going through the directory
 {
@@ -22,9 +29,9 @@ foreach my $filepath_DCIM (@folders_DCIM)				# going through the directory
     $insp_path{$file_DCIM} = $filepath_DCIM;    # recording the path for each file
 }
 
-$c = 0; 
+my $c = 0; 
 
-print "\n======================================== go through screenshots\n\n";
+print "\n=================== go through screenshots =====================\n\n";
 
 my @folders_screenshot = File::Find::Rule->file
                               ->name( 'IMG_20220318_094121_*_screenshot.jpg' )
@@ -34,6 +41,10 @@ print "PATH is " . $path_screenshot . "\n\n";
 
 my $exifTool = new Image::ExifTool;         # define the $exifTool variable
 
+my $path_screenshot;
+my $file_screenshot;
+
+my $formattted = "%s   %s         %s  %s\n";
 
 foreach my $screenshot (sort @folders_screenshot)				# going through the directory
 {
@@ -47,54 +58,49 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
 
     # 2022-03-25_09-38-07_screenshot --- remove the last 35 characters of the screenshot filename, the remainder of which references the original .insp file
     
-    $insp_part = substr $file_screenshot, 0, -35;
-    $insp_ref = $insp_part . ".insp";                   # recreate .insp filename for reference
+    my $insp_part = substr $file_screenshot, 0, -35;
+    my $insp_ref = $insp_part . ".insp";                   # recreate .insp filename for reference
 
-    print "=========================== screenshot #$c from .insp =========================================================\n";
+    print "=========================== screenshot #$c from .insp to .jpeg =========================================================\n\n";
 
-    $screenshot_line  = sprintf ('%s        %s %s                    %s', $file_screenshot, $$info_screenshot{DateTimeOriginal},  $$info_DCIM{Model}, $$info_screenshot{FileName} );
+    printf $formattted, "Date/Time Original", "Camera", "FileName";
+    print "\n";
 
-    print $screenshot_line . "\n" ;
+    # IMG_20220318_094121_00_016_2022-03-25_09-40-20_screenshot.jpg
+
+    my $formattted = "%s  %s  %s  %s\n";
+
+    printf $formattted, $$info_screenshot{DateTimeOriginal},  $$info_screenshot{Model}, $$info_screenshot{FileName};
     
     # Step 2: extract DateTimeOriginal from .insp
 
     my $info_DCIM = ImageInfo($insp_path{$insp_ref});
 
-    $insp_line  = sprintf ('%s                                      %s       %s %s', $insp_ref, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $$info_DCIM{FileName});
-    print $insp_line . "\n" ;
+    printf $formattted, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $$info_DCIM{FileName};
 
-    # print "going to system for exiftool command\n";
+    my $info = $exifTool->SetNewValuesFromFile($insp_path{$insp_ref}, 'DateTimeOriginal', 'Model');    # attempting to use the .insp file as the source for DateTimeOriginal
 
-    # system "exiftool -DateTimeOriginal '$insp_path{$insp_ref}'";
-    # system "echo '$insp_path{$insp_ref}'";
+    # print "exifTool = $exifTool\n";
+    # print "info = $info\n";
 
-    # system "exiftool -tagsFromFile '$insp_path{$insp_ref}' '$screenshot'";
-    # print "done with system\n";
-
-
-    my $info = $exifTool->SetNewValuesFromFile($insp_path, 'DateTimeOriginal');    # attempting to use the .insp file as the source for DateTimeOriginal
-
-    print "exifTool = $exifTool\n";
-    print "info = $info\n";
-
-    # $exifTool->SetNewValuesFromFile($insp_path, 'Model');
-
-    # $exifTool->SetNewValue(DateTimeOriginal => '4:00', Shift => -1);
+    $exifTool->SetNewValue(DateTimeOriginal => '4:00', Shift => -1);
 
     # write EXIF to screenshot jpeg
 
-    $errcode = $exifTool->WriteInfo($screenshot);
+    my $errcode = $exifTool->WriteInfo($screenshot);
 
-    print "errcode = $errcode\n";
+    # print "errcode = $errcode\n";
 
     my $info_screenshot = ImageInfo($screenshot);
 
-    print "info_screenshot = $info_screenshot\n";
+    # print "info_screenshot = $info_screenshot\n";
 
-    $screenshot_line  = sprintf ('%s        %s ', $file_screenshot, $$info_screenshot{DateTimeOriginal}, $$info_screenshot{Model});
-    print $screenshot_line . "\n" ;
-
+    printf $formattted, $$info_screenshot{DateTimeOriginal}, $$info_screenshot{Model}, $$info_screenshot{FileName};
+    print "\n";
+    
     $exifTool->SetNewValue();
+
+    # updated March 31, 2022 1:06pm
 exit;
 }
 
