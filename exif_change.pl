@@ -71,8 +71,6 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
     # system "exiftool -tagsFromFile '$insp_path{$insp_ref}' '$screenshot'";
     # print "done with system\n";
 
-    # system "exiftool '-alldates<\${directory}\$filename' -execute -alldates-=4 '-gpstimestamp<createdate' -model='Narrative Clip' -common_args -r -overwrite_original -progress $spath ";			# set date/time and model
-
 
     my $info = $exifTool->SetNewValuesFromFile($insp_path, 'DateTimeOriginal');    # attempting to use the .insp file as the source for DateTimeOriginal
 
