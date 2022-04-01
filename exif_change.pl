@@ -97,18 +97,14 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
 
     my $errcode = $exifTool->WriteInfo($screenshot);
 
-    # print "errcode = $errcode\n";
-
     my $info_screenshot = ImageInfo($screenshot);   # re-reading modified EXIF of screenshot
-
-    # print "info_screenshot = $info_screenshot\n";
 
     printf $formattted, $$info_screenshot{DateTimeOriginal}, $$info_screenshot{Model}, $ref_screenshot;
     print "\n";
     
     $exifTool->SetNewValue();
 
-    # updated March 31, 2022 1:06pm
+    # updated April 1, 2022, 12:30pm
 exit;
 }
 
