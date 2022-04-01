@@ -25,7 +25,7 @@ my %insp_path;
 
 foreach my $filepath_DCIM (@folders_DCIM)				# going through the directory
 {
-	$filepath_DCIM =~ /(.*)\/(Camera\d\d.*\.insp)/;		# separating path from file name
+	$filepath_DCIM =~ /(.*)\/(Camera\d\d.*\.insp)/;		# separating path from CameraXX/file name
 	$path_DCIM = $1 . "/" . $2;
     $camera_DCIM = $2;
 	$file_DCIM = $3;
