@@ -40,6 +40,7 @@ foreach my $filepath_DCIM (@folders_DCIM)				# going through the directory
         my $info_DCIM = ImageInfo($filepath_DCIM);     # Read image file and return meta information
 	$file_DCIM = basename($filepath_DCIM);
 
+        print "before\n";
         printf $formattted, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $file_DCIM;
 
         my $dateTime = $$info_DCIM{DateTimeOriginal};
@@ -49,6 +50,7 @@ foreach my $filepath_DCIM (@folders_DCIM)				# going through the directory
 
         my $info_DCIM = ImageInfo($filepath_DCIM);     # re-Read image file and return meta information
 
+        print "after\n";
         printf $formattted, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $file_DCIM;
 
         exit;
