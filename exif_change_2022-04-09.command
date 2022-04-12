@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# bash script to shift dates on .INSP file or directory of .INSP files
+
+INSTA360_DIR="/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/"
+INSTA360_DATE="2022-04-09/"
+
+# Camera05 20220409_134400 - Frida 1
+
+IMG_INSP_134400="$INSTA360_DIR$INSTA360_DATE"
+IMG_INSP_134400+="DCIM/Camera05 20220409_134400/IMG_20180113_191724_00_354.insp"
+
+IMG_JPEG_134400="$INSTA360_DIR$INSTA360_DATE"
+IMG_JPEG_134400="_Studio/Camera05 20220409_134400/IMG_20180113_191724_00_354.jpg"
+
+DIR_INSP_134400="$INSTA360_DIR$INSTA360_DATE"
+DIR_INSP_134400+="DCIM/Camera05 20220409_134400/"
+
+DIR_JPEG_134400="$INSTA360_DIR$INSTA360_DATE"
+DIR_JPEG_134400+="_Studio/Camera05 20220409_134400/"
+
+DATE_DIFF_134400="4:2:26 14:26:36"
+
+# Camera05 20220409_143200 - Frida 2
+
+DIR_INSP_143200="$INSTA360_DIR$INSTA360_DATE"
+DIR_INSP_143200+="DCIM/Camera05 20220409_143200/"
+
+DIR_JPEG_143200="$INSTA360_DIR$INSTA360_DATE"
+DIR_JPEG_143200+="_Studio/Camera05 20220409_143200/"
+
+DATE_DIFF_143200="4:3:8 14:31:52"
+
+# Camera05 20220328 - March 28
+
+IMG_INSP_20220328="$INSTA360_DIR$INSTA360_DATE"
+IMG_INSP_20220328+="DCIM/Camera05 20220328/IMG_20180101_191104_00_218.insp"
+
+DIR_INSP_20220328="$INSTA360_DIR$INSTA360_DATE"
+DIR_INSP_20220328+="DCIM/Camera05 20220328/"
+
+DIR_JPEG_20220328="$INSTA360_DIR$INSTA360_DATE"
+DIR_JPEG_20220328+="_Studio/Camera05 20220328/"
+
+DATE_DIFF_20220328="4:2:26 14:26:36"
+
+# DO="Frida 1"
+# DO="Mar28"
+DO="Mar28 dir"
+
+if [[ $DO == "Mar28" ]]
+then
+    echo =========== INSP
+    exiftool -T -FileName -alldates "$IMG_INSP_20220328"
+    exiftool "-DateTimeOriginal-=$DATE_DIFF_20220328" "$IMG_INSP_20220328"
+    exiftool -T -FileName -alldates "$IMG_INSP_20220328"
+elif [[ $DO == "Mar28 dir" ]]
+then
+    echo =========== INSP
+    exiftool -T -FileName -alldates "$DIR_INSP_20220328"
+    exiftool "-DateTimeOriginal+=$DATE_DIFF_20220328" "$DIR_INSP_20220328"
+    exiftool -T -FileName -alldates "$DIR_INSP_20220328"
+elif [[ $DO == "Frida 1" ]]
+then
+    echo =========== INSP
+    exiftool -T -FileName -alldates "$IMG_INSP_134400"
+    exiftool "-DateTimeOriginal-=$DATE_DIFF_20220328" "$IMG_INSP_134400"
+    exiftool -T -FileName -alldates "$IMG_INSP_134400"
+        
+fi
+

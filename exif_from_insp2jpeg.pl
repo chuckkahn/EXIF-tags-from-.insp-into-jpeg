@@ -8,7 +8,7 @@ use Image::ExifTool qw(:Public);
 
 my $Insta360_main   = "/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/";  # main path
 
-my $Insta360_date   = "2022-03-20 - Toronto Comicon Day 3";
+my $Insta360_date   = "2022-04-09";
 
 # my $Insta360_date   = "2022-03-20";   # date part of path
 
@@ -57,17 +57,23 @@ my $path_screenshot;
 my $camera_screenshot;
 my $file_screenshot;
 my $ref_screenshot;
+my $upperpath_screenshot;
 
 my $formattted = "%s   %s         %s  %s\n";
 
+use File::Basename;
+
 foreach my $screenshot (sort @folders_screenshot)				# going through the directory
 {
-	$screenshot =~ /(.*)\/(Camera\d\d\/)(.*\.jpg)/;		# separating path from file name
-	$path_screenshot = $1 . "/" . $2;
-    $camera_screenshot = $2;
-	$file_screenshot = $3;
+	$path_screenshot = dirname($screenshot);
+	$file_screenshot = basename($screenshot);
 
-    $ref_screenshot = $camera_screenshot . $file_screenshot;    # creating camera+file reference
+    $upperpath_screenshot = $Insta360_main . $Insta360_date . "/_Studio/";    # jpeg screenshot path
+
+    $camera_screenshot = $path_screenshot;
+    $camera_screenshot =~ s/$upperpath_screenshot//;
+
+    $ref_screenshot = $camera_screenshot . "/" . $file_screenshot;    # creating camera+file reference
 
     my $info_screenshot = ImageInfo($screenshot);     # Read image file and return meta information
 
@@ -97,37 +103,42 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
 
     my $formattted = "%s  %s  %s  %s\n";
 
-    printf $formattted, $$info_screenshot{DateTimeOriginal},  $$info_screenshot{Model}, $ref_screenshot;
+    # check if screenshot has DateTimeOriginal before adding DateTimeOriginal
+
+    if (! $$info_screenshot{DateTimeOriginal})
+    {
+        printf $formattted, $$info_screenshot{DateTimeOriginal},  $$info_screenshot{Model}, $ref_screenshot;
     
-    # Step 2: extract DateTimeOriginal from .insp
+        # Step 2: extract DateTimeOriginal from .insp
 
-    my $info_DCIM = ImageInfo($insp_path{$insp_ref});
-
-
-    printf $formattted, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $insp_ref;
-
-    # If you want to copy a time with SetNewValuesFromFile, then write a shifted value, you could set the GlobalTimeShift API option before calling SetNewValuesFromFile.  Of course, this would then apply to all date/time tags copied
-
-    # Time shift to apply to all extracted date/time PrintConv values. Does not affect ValueConv values
-
-    # Date/time shift string with leading '-' for negative shifts
-
-    my $info = $exifTool->Options(GlobalTimeShift => '-4');
-
-    my $info = $exifTool->SetNewValuesFromFile($insp_path{$insp_ref}, 'DateTimeOriginal', 'Model');    # attempting to use the .insp file as the source for DateTimeOriginal
+        my $info_DCIM = ImageInfo($insp_path{$insp_ref});
 
 
-    # $exifTool->SetNewValue(DateTimeOriginal => '4:00', Shift => -1);    # shift time by 4 hours for GMT to EST
+        printf $formattted, $$info_DCIM{DateTimeOriginal}, $$info_DCIM{Model}, $insp_ref;
 
-    # write EXIF to screenshot jpeg
+        # "If you want to copy a time with SetNewValuesFromFile, then write a shifted value, you could set the GlobalTimeShift API option before calling SetNewValuesFromFile.  Of course, this would then apply to all date/time tags copied"
 
-    my $errcode = $exifTool->WriteInfo($screenshot);
+        # "Time shift to apply to all extracted date/time PrintConv values. Does not affect ValueConv values"
 
-    my $info_screenshot = ImageInfo($screenshot);   # re-reading modified EXIF of screenshot
+        # -- Phil Harvey, ExifTool Author, from https://exiftool.org/forum/index.php?topic=13438.0
 
-    printf $formattted, $$info_screenshot{DateTimeOriginal}, $$info_screenshot{Model}, $ref_screenshot;
-    print "\n";
-    
-    $exifTool->SetNewValue();
+        # Date/time shift string with leading '-' for negative shifts
+
+        # my $info = $exifTool->Options(GlobalTimeShift => '-4');
+
+        my $info = $exifTool->SetNewValuesFromFile($insp_path{$insp_ref}, 'DateTimeOriginal', 'Model');    # attempting to use the .insp file as the source for DateTimeOriginal
+
+        # write EXIF to screenshot jpeg
+
+        my $errcode = $exifTool->WriteInfo($screenshot);
+
+        my $info_screenshot = ImageInfo($screenshot);   # re-reading modified EXIF of screenshot
+
+        printf $formattted, $$info_screenshot{DateTimeOriginal}, $$info_screenshot{Model}, $ref_screenshot;
+        print "\n";
+        
+        $exifTool->SetNewValue();
+        # exit;
+    }
 }
 
