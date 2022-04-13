@@ -7,10 +7,7 @@ use File::Find::Rule;	# find all the subdirectories of a given directory
 use Image::ExifTool qw(:Public);
 
 my $Insta360_main   = "/Volumes/CK_10TB/Downloads iMac/_media for unRAID/Insta360 ONE X/";  # main path
-
 my $Insta360_date   = "2022-04-09";
-
-# my $Insta360_date   = "2022-03-20";   # date part of path
 
 my $path_DCIM       = $Insta360_main . $Insta360_date . "/DCIM/";   # DCIM path
 
@@ -65,6 +62,8 @@ use File::Basename;
 
 foreach my $screenshot (sort @folders_screenshot)				# going through the directory
 {
+
+    print "screenshot = $screenshot\n";
 	$path_screenshot = dirname($screenshot);
 	$file_screenshot = basename($screenshot);
 
@@ -83,7 +82,7 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
 
     my $insp_ref;
 
-    if ( $ref_screenshot =~ /_screenshot.jpg/ )
+    if ( $ref_screenshot =~ /_screenshot.jpg/ )             # check if .jpeg is a screenshot
     {
         my $insp_part = substr $ref_screenshot, 0, -35;
         $insp_ref = $insp_part . ".insp";                   # recreate .insp filename for reference
@@ -105,9 +104,14 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
 
     # check if screenshot has DateTimeOriginal before adding DateTimeOriginal
 
-    if (! $$info_screenshot{DateTimeOriginal})
+    printf $formattted, $$info_screenshot{DateTimeOriginal},  $$info_screenshot{Model}, $ref_screenshot;
+
+    my $do_this = "yes";
+
+#   if (! $$info_screenshot{DateTimeOriginal})   # check if screenshot already has DateTimeOriginal
+
+    if ( $do_this eq "yes" )
     {
-        printf $formattted, $$info_screenshot{DateTimeOriginal},  $$info_screenshot{Model}, $ref_screenshot;
     
         # Step 2: extract DateTimeOriginal from .insp
 
@@ -138,7 +142,8 @@ foreach my $screenshot (sort @folders_screenshot)				# going through the directo
         print "\n";
         
         $exifTool->SetNewValue();
-        # exit;
     }
+  #      exit;
+
 }
 
